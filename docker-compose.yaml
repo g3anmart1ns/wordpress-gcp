@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+
+  wordpress:
+    image: wordpress:latest
+    restart: always
+    networks:
+      - wp-net
+    ports:
+      - 8080:80
+    logging:
+      driver: "gcplogs"
+    environment:
+      WORDPRESS_DB_HOST: "${WORDPRESS_DB_HOST}"
+      WORDPRESS_DB_USER: "${WORDPRESS_DB_NAME}"
+      WORDPRESS_DB_PASSWORD: "${WORDPRESS_DB_USER}"
+      WORDPRESS_DB_NAME: "${WORDPRESS_DB_PASSWORD}"
+    volumes:
+      - wordpress:/var/www/html
+
+  db:
+    image: mysql:5.7
+    restart: always
+    networks:
+      - wp-net
+    logging:
+      driver: "gcplogs"
+    environment:
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "${MYSQL_RANDOM_ROOT_PASSWORD}"
+    volumes:
+      - db:/var/lib/mysql
+
+  dokuwiki:
+    image: docker.io/bitnami/dokuwiki:20220731
+    restart: always
+    networks:
+      - wp-net
+    logging:
+      driver: "gcplogs"
+    environment:
+    environment:
+      DOKUWIKI_USERNAME: "${DOKUWIKI_USERNAME}"
+      DOKUWIKI_FULL_NAME: "${DOKUWIKI_FULL_NAME}"
+      DOKUWIKI_PASSWORD: "${DOKUWIKI_PASSWORD}"
+      DOKUWIKI_EMAIL: "${DOKUWIKI_EMAIL}"
+      DOKUWIKI_WIKI_NAME: "${DOKUWIKI_WIKI_NAME}"
+    ports:
+      - '8081:8080'
+      - '8443:8443'
+    volumes:
+      - 'dokuwiki_data:/bitnami/dokuwiki'
+
+volumes:
+  dokuwiki_data:
+  wordpress:
+  db:
+
+networks:
+  wp-net:
+    external: true
